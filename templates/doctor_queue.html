@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>{{ camp.camp_name }}</h2>
+
+    <p class="text-muted">
+        {{ camp.location }},
+        {{ camp.camp_date.strftime('%d-%m-%Y') }}
+    </p>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">Patient Queue</h5>
+
+            {% if patients %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Patient Name</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for patient in patients %}
+
+                        <tr>
+
+                            <td>
+                                <strong>#{{ patient.token_no }}</strong>
+                            </td>
+
+                            <td>{{ patient.full_name }}</td>
+
+                            <td>{{ patient.gender or "—" }}</td>
+
+                            <td>{{ patient.phone or "—" }}</td>
+
+
+                            <td>
+
+                                {% if patient.status == 'waiting' %}
+                                <span class="badge bg-warning text-dark">
+                                    Waiting
+                                </span>
+
+                                {% elif patient.status == 'in_progress' %}
+                                <span class="badge bg-info text-dark">
+                                    In Progress
+                                </span>
+
+                                {% elif patient.status == 'completed' %}
+                                <span class="badge bg-success">
+                                    Completed
+                                </span>
+
+                                {% elif patient.status == 'missed' %}
+                                <span class="badge bg-danger">
+                                    Missed
+                                </span>
+
+                                {% elif patient.status == 'cancelled' %}
+                                <span class="badge bg-secondary">
+                                    Cancelled
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if patient.status == 'waiting' %}
+
+                                <form method="POST" action="{{ url_for(
+                                              'doctor_work.start_consultation',
+                                              registration_id=patient.registration_id
+                                          ) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button class="btn btn-sm btn-outline-primary" type="submit">
+                                        Start
+                                    </button>
+
+                                </form>
+
+                                {% elif patient.status == 'in_progress' %}
+
+                                <a href="{{ url_for(
+                                        'doctor_work.record_screening',
+                                        registration_id=patient.registration_id
+                                    ) }}" class="btn btn-sm btn-primary">
+
+                                    Record Screening
+
+                                </a>
+
+                                {% elif patient.status == 'completed' %}
+
+                                {% if patient.record_id and patient.screening_doctor_id == doctor_id %}
+
+                                <form method="POST" action="{{ url_for(
+                                        'reports.download_report',
+                                        record_id=patient.record_id
+                                    ) }}">
+
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        Download Report
+                                    </button>
+
+                                </form>
+
+                                {% elif patient.record_id %}
+
+                                <span class="text-muted">
+                                    Completed by another doctor
+                                </span>
+
+                                {% else %}
+
+                                <span class="text-muted">Finished</span>
+
+                                {% endif %}
+
+                                {% elif patient.status == 'missed' %}
+
+                                <span class="text-muted">Camp ended</span>
+
+                                {% elif patient.status == 'cancelled' %}
+
+                                <span class="text-muted">Cancelled</span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <p class="text-muted">
+                No patients have registered for this camp yet.
+            </p>
+
+            {% endif %}
+
+            <a href="{{ url_for('doctor_work.my_camps') }}" class="btn btn-outline-secondary mt-3">
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

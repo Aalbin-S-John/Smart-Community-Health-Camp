@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Edit Health Camp</h2>
+            <p class="text-muted">Update the camp details below.</p>
+        </div>
+
+        <a href="{{ url_for('camps.list_camps') }}" class="btn btn-secondary">
+            Back to Camps
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label">Camp Name</label>
+                    <input type="text" name="camp_name" class="form-control" value="{{ camp.camp_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3">{{ camp.description or '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="location" class="form-control" value="{{ camp.location }}" required>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Camp Date</label>
+                        <input type="date" name="camp_date" class="form-control"
+                            value="{{ camp.camp_date.strftime('%Y-%m-%d') }}" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Patient Capacity</label>
+                        <input type="number" name="capacity" class="form-control" min="1" value="{{ camp.capacity }}"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="start_time" class="form-control" value="{{ camp.start_time }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="end_time" class="form-control" value="{{ camp.end_time }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Estimated Budget (₹)</label>
+                        <input type="number" name="estimated_budget" class="form-control" min="0" max="99999999.99"
+                            step="0.01" value="{{ camp.estimated_budget }}" required>
+                    </div>
+
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes
+                    </button>
+
+                    <a href="{{ url_for('camps.list_camps') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Create Health Camp{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="form-card">
+
+            <h2 class="fw-bold">Create Health Camp</h2>
+
+            <p class="text-muted">
+                Schedule a new community health camp in Bengaluru.
+            </p>
+
+            <hr>
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label">Camp Name *</label>
+                    <input type="text" name="camp_name" class="form-control"
+                        placeholder="Example: Free General Health Check-up Camp" maxlength="150" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3"
+                        placeholder="Describe the medical services available"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Camp Venue / Locality *</label>
+                    <input type="text" name="location" class="form-control" list="bengaluruLocations"
+                        placeholder="Example: Jayanagar 4th Block" required>
+
+                    <datalist id="bengaluruLocations">
+                        <option value="Indiranagar">
+                        <option value="Jayanagar">
+                        <option value="Koramangala">
+                        <option value="Whitefield">
+                        <option value="Rajajinagar">
+                        <option value="Malleshwaram">
+                        <option value="BTM Layout">
+                        <option value="HSR Layout">
+                        <option value="Electronic City">
+                        <option value="Basavanagudi">
+                    </datalist>
+
+                    <small class="text-muted">
+                        City: Bengaluru, Karnataka, India
+                    </small>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Camp Date *</label>
+                        <input type="date" name="camp_date" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="start_time" class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="end_time" class="form-control">
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Patient Capacity *</label>
+                    <input type="number" name="capacity" class="form-control" min="1" placeholder="Example: 100"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Estimated Camp Budget (₹)
+                    </label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" name="estimated_budget" class="form-control" min="0" max="99999999.99"
+                            step="0.01" value="0">
+                    </div>
+
+                    <small class="text-muted">
+                        Enter the estimated expenses in Indian Rupees.
+                    </small>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+
+                    <button type="submit" class="btn btn-primary">
+                        Create Camp
+                    </button>
+
+                    <a href="{{ url_for('camps.list_camps') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

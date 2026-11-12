@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>My Camp Registrations</h2>
+        <p class="text-muted">
+            View your registered health camps and queue token numbers.
+        </p>
+    </div>
+
+    {% set sections = [
+    ('upcoming', 'Upcoming Camps'),
+    ('ongoing', 'Ongoing Camps'),
+    ('completed', 'Completed Camps'),
+    ('cancelled', 'Cancelled Registrations')
+    ] %}
+
+    {% for camp_status, title in sections %}
+
+    {% set section_registrations = registrations
+    | selectattr('camp_status', 'equalto', camp_status)
+    | list %}
+
+    {% if section_registrations %}
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">{{ title }}</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Camp Name</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Token</th>
+                            <th>Status</th>
+                            <th>Report</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for registration in section_registrations %}
+
+                        <tr>
+
+                            <td>{{ registration.camp_name }}</td>
+
+                            <td>{{ registration.location }}</td>
+
+                            <td>
+                                {{ registration.camp_date.strftime('%d-%m-%Y') }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-primary">
+                                    #{{ registration.token_no }}
+                                </span>
+                            </td>
+
+                            <td>
+
+                                {% if registration.status == 'waiting' %}
+                                <span class="badge bg-warning text-dark">Waiting</span>
+
+                                {% elif registration.status == 'in_progress' %}
+                                <span class="badge bg-info text-dark">In Progress</span>
+
+                                {% elif registration.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+
+                                {% elif registration.status == 'missed' %}
+                                <span class="badge bg-danger">Missed</span>
+
+                                {% elif registration.status == 'cancelled' %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if registration.record_id %}
+
+                                <form method="POST" action="{{ url_for(
+                                                'reports.download_report',
+                                                record_id=registration.record_id
+                                            ) }}">
+
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        Download PDF
+                                    </button>
+
+                                </form>
+
+                                {% else %}
+                                <span class="text-muted">Not available</span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if registration.status == 'waiting' %}
+
+                                <form method="POST" action="{{ url_for(
+                                                'patient_camps.cancel_registration',
+                                                registration_id=registration.registration_id
+                                            ) }}"
+                                    onsubmit="return confirm('Are you sure you want to cancel this registration?');">
+
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Cancel
+                                    </button>
+
+                                </form>
+
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    {% endfor %}
+
+    {% if not registrations %}
+    <div class="alert alert-info">
+        You have not registered for any health camps yet.
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('patient_camps.list_available_camps') }}" class="btn btn-outline-primary mb-4">
+        Browse Health Camps
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Health Camps{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold">Health Camps</h2>
+        <p class="text-muted mb-0">
+            Manage community health camps in Bengaluru.
+        </p>
+    </div>
+
+    <a href="{{ url_for('camps.create_camp') }}" class="btn btn-primary">
+        + Add New Camp
+    </a>
+
+</div>
+
+{% set sections = [
+('upcoming', 'Upcoming Camps', 'primary'),
+('ongoing', 'Ongoing Camps', 'success'),
+('completed', 'Completed Camps', 'secondary'),
+('cancelled', 'Cancelled Camps', 'danger')
+] %}
+
+{% for camp_status, title, color in sections %}
+
+{% set status_camps = camps | selectattr('status', 'equalto', camp_status) | list %}
+
+{% if status_camps %}
+
+<div class="form-card mb-4">
+
+    <h4 class="mb-3">
+        {{ title }}
+        <span class="badge bg-{{ color }}">
+            {{ status_camps | length }}
+        </span>
+    </h4>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Camp Name</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Budget</th>
+                    <th>Patients</th>
+                    <th>Doctors</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for camp in status_camps %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ camp.camp_name }}</strong>
+                    </td>
+
+                    <td>
+                        {{ camp.location }}, {{ camp.city }}
+                    </td>
+
+                    <td>
+                        {{ camp.camp_date.strftime('%d-%m-%Y') }}
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(camp.estimated_budget) }}
+                    </td>
+
+                    <td>
+                        {{ camp.registered_count }}/{{ camp.capacity }}
+                    </td>
+
+                    <td>
+                        {{ camp.doctor_count }}
+                    </td>
+
+                    <td>
+                        {% if camp.status == 'upcoming' %}
+                        <span class="badge bg-primary">Upcoming</span>
+                        {% elif camp.status == 'ongoing' %}
+                        <span class="badge bg-success">Ongoing</span>
+                        {% elif camp.status == 'completed' %}
+                        <span class="badge bg-secondary">Completed</span>
+                        {% else %}
+                        <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-2">
+
+                            {% if camp.status in ['upcoming', 'ongoing'] %}
+
+                            <a href="{{ url_for('camps.edit_camp', camp_id=camp.camp_id) }}"
+                                class="btn btn-outline-success btn-sm">
+                                Edit Camp
+                            </a>
+
+                            {% endif %}
+
+                            {% if camp.status == 'upcoming' %}
+
+                            <a href="{{ url_for('doctors.assign_doctors', camp_id=camp.camp_id) }}"
+                                class="btn btn-outline-primary btn-sm">
+                                Assign Doctors
+                            </a>
+
+                            <form method="POST" action="{{ url_for('camps.cancel_camp', camp_id=camp.camp_id) }}"
+                                onsubmit="return confirm('Are you sure you want to cancel this camp?');">
+
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    Cancel
+                                </button>
+
+                            </form>
+
+                            {% endif %}
+
+                            {% if camp.status in ['completed', 'cancelled'] %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+{% if not camps %}
+<div class="alert alert-info">
+    No health camps found.
+</div>
+{% endif %}
+
+{% endblock %}

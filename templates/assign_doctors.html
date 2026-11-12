@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>Assign Doctors</h2>
+        <p class="text-muted">
+            Select doctors who will attend this health camp.
+        </p>
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5>{{ camp.camp_name }}</h5>
+
+            <p class="text-muted">
+                {{ camp.location }} ·
+                {{ camp.camp_date.strftime('%d-%m-%Y') }}
+            </p>
+
+            <hr>
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <h6 class="mb-3">Available Doctors</h6>
+
+                {% if doctors %}
+
+                {% for doctor in doctors %}
+
+                <div class="form-check border rounded p-3 mb-2">
+
+                    <input class="form-check-input ms-0 me-2" type="checkbox" name="doctor_ids"
+                        value="{{ doctor.doctor_id }}" id="doctor{{ doctor.doctor_id }}" {% if doctor.doctor_id in
+                        assigned_ids %} checked {% endif %}>
+
+                    <label class="form-check-label" for="doctor{{ doctor.doctor_id }}">
+
+                        <strong>{{ doctor.full_name }}</strong>
+                        <br>
+
+                        <small class="text-muted">
+                            {{ doctor.specialization or "Specialization not specified" }}
+                        </small>
+
+                    </label>
+                    <div class="mt-2 ms-4" style="max-width: 180px;">
+                        <label class="form-label small">
+                            Patient Limit
+                        </label>
+
+                        <input type="number" class="form-control form-control-sm"
+                            name="patient_limit_{{ doctor.doctor_id }}" value="{{ doctor.patient_limit }}" min="1">
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Save Assignments
+                </button>
+
+                {% else %}
+
+                <p class="text-muted">
+                    No doctors available. Add doctors first.
+                </p>
+
+                <a href="{{ url_for('doctors.create_doctor') }}" class="btn btn-primary">
+                    Add Doctor
+                </a>
+
+                {% endif %}
+
+                <a href="{{ url_for('camps.list_camps') }}" class="btn btn-outline-secondary mt-3">
+                    Back to Camps
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

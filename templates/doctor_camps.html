@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Doctor Dashboard</h2>
+
+    <p class="text-muted">
+        View the health camps assigned to you.
+    </p>
+
+    {% set sections = [
+    ('ongoing', 'Ongoing Camps', 'success'),
+    ('upcoming', 'Upcoming Camps', 'primary'),
+    ('completed', 'Completed Camps', 'secondary'),
+    ('cancelled', 'Cancelled Camps', 'danger')
+    ] %}
+
+    {% for status, title, color in sections %}
+
+    {% set status_camps = camps | selectattr('status', 'equalto', status) | list %}
+    {% if status == 'completed' %}
+    {% set status_camps = status_camps
+    | selectattr('registered_count', 'gt', 0)
+    | list %}
+    {% endif %}
+    {% if status_camps %}
+
+    <h4 class="mt-4 mb-3">{{ title }}</h4>
+
+    <div class="row g-4">
+
+        {% for camp in status_camps %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5>{{ camp.camp_name }}</h5>
+
+                    <span class="badge bg-{{ color }} mb-3">
+                        {{ status | capitalize }}
+                    </span>
+
+                    <p class="text-muted">
+                        {{ camp.location }}, Bengaluru
+                    </p>
+
+                    <p>
+                        <strong>Date:</strong>
+                        {{ camp.camp_date.strftime('%d-%m-%Y') }}
+                    </p>
+
+                    <p>
+                        <strong>Registered:</strong>
+                        {{ camp.registered_count }} / {{ camp.capacity }}
+                    </p>
+
+                    <p>
+                        <strong>Waiting:</strong>
+                        {{ camp.waiting_count }}
+                    </p>
+
+                    <a href="{{ url_for(
+                        'doctor_work.camp_queue',
+                        camp_id=camp.camp_id
+                    ) }}" class="btn btn-primary w-100">
+
+                        {% if status in ['completed', 'cancelled'] %}
+                        View Patient Records
+                        {% else %}
+                        View Patient Queue
+                        {% endif %}
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+    {% endfor %}
+
+    {% if not camps %}
+
+    <div class="alert alert-info mt-3">
+        No health camps have been assigned to you yet.
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

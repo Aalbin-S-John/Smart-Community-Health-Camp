@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Swasthya{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Dashboard</h2>
+        <p class="text-muted mb-0">
+            Bengaluru Community Health Camp Overview
+        </p>
+    </div>
+
+    <a href="{{ url_for('camps.create_camp') }}" class="btn btn-primary">
+        + Create Health Camp
+    </a>
+</div>
+
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Total Patients</p>
+            <h3>{{ stats.total_patients }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Total Doctors</p>
+            <h3>{{ stats.total_doctors }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Total Camps</p>
+            <h3>{{ stats.total_camps }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Upcoming Camps</p>
+            <h3>{{ stats.upcoming_camps }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Ongoing Camps</p>
+            <h3>{{ stats.ongoing_camps }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Completed Camps</p>
+            <h3>{{ stats.completed_camps }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Cancelled Camps</p>
+            <h3>{{ stats.cancelled_camps }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-card">
+            <p class="text-muted mb-1">Completed Checkups</p>
+            <h3>{{ stats.completed_checkups }}</h3>
+        </div>
+    </div>
+
+</div>
+
+<div class="form-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Recent Health Camps</h4>
+
+        <a href="{{ url_for('camps.list_camps') }}" class="btn btn-outline-primary btn-sm">
+            View All
+        </a>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Camp Name</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Estimated Budget</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for camp in recent_camps %}
+
+                <tr>
+                    <td>{{ camp.camp_name }}</td>
+                    <td>{{ camp.location }}, {{ camp.city }}, {{ camp.state }}</td>
+                    <td>{{ camp.camp_date.strftime('%d-%m-%Y') }}</td>
+                    <td>₹{{ "%.2f"|format(camp.estimated_budget) }}</td>
+                    <td>
+                        {% if camp.status == 'upcoming' %}
+                        <span class="badge bg-primary">Upcoming</span>
+                        {% elif camp.status == 'ongoing' %}
+                        <span class="badge bg-success">Ongoing</span>
+                        {% elif camp.status == 'completed' %}
+                        <span class="badge bg-secondary">Completed</span>
+                        {% elif camp.status == 'cancelled' %}
+                        <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        No health camps created yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

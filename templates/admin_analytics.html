@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Analytics Dashboard</h2>
+            <p class="text-muted">
+                Health camp registration and performance overview
+            </p>
+        </div>
+
+        <a href="{{ url_for('dashboard.admin') }}" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Monthly Registrations -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm p-3">
+                <h5>Monthly Registrations</h5>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Registration Status -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm p-3">
+                <h5>Registration Status</h5>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top 5 Camps -->
+        <div class="col-lg-12">
+            <div class="card shadow-sm p-3">
+                <h5>Top 5 Camps by Registrations</h5>
+                <canvas id="campChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- Receive data from Flask -->
+<script id="monthly-data" type="application/json">
+    {{ monthly_data | tojson }}
+</script>
+
+<script id="status-data" type="application/json">
+    {{ status_data | tojson }}
+</script>
+
+<script id="top-camps-data" type="application/json">
+    {{ top_camps | tojson }}
+</script>
+
+
+<!-- Create Charts -->
+<script>
+
+    // Get analytics data from Flask
+    const monthlyData = JSON.parse(
+        document.getElementById('monthly-data').textContent
+    );
+
+    const statusData = JSON.parse(
+        document.getElementById('status-data').textContent
+    );
+
+    const topCampsData = JSON.parse(
+        document.getElementById('top-camps-data').textContent
+    );
+
+
+    // 1. Monthly Registrations
+    const monthlyLabels = monthlyData.map(item => item.month_label);
+    const monthlyValues = monthlyData.map(item => item.total);
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Registrations',
+                data: monthlyValues,
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+
+    // 2. Registration Status
+    const statusLabels = statusData.map(item => item.status);
+    const statusValues = statusData.map(item => item.total);
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusValues
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+
+    // 3. Top 5 Camps
+    const campLabels = topCampsData.map(item => item.camp_name);
+    const campValues = topCampsData.map(item => item.total);
+
+    new Chart(document.getElementById('campChart'), {
+        type: 'bar',
+        data: {
+            labels: campLabels,
+            datasets: [{
+                label: 'Registrations',
+                data: campValues,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+
+{% endblock %}

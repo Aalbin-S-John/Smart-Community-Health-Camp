@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>Available Health Camps</h2>
+        <p class="text-muted">
+            Browse and register for upcoming community health camps in Bengaluru.
+        </p>
+
+        <a href="{{ url_for('patient_camps.my_registrations') }}" class="btn btn-outline-primary btn-sm">
+            My Registrations
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        {% for camp in camps %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <span class="badge bg-success mb-2">
+                        Upcoming
+                    </span>
+
+                    <h5 class="card-title">
+                        {{ camp.camp_name }}
+                    </h5>
+
+                    <p class="text-muted">
+                        {{ camp.description or "Community health check-up camp." }}
+                    </p>
+
+                    <hr>
+
+                    <p class="mb-2">
+                        <strong>Location:</strong><br>
+                        {{ camp.location }}, {{ camp.city }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>Date:</strong>
+                        {{ camp.camp_date.strftime('%d-%m-%Y') }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>Time:</strong>
+                        {{ camp.display_start_time or "Not specified" }}
+
+                        {% if camp.display_end_time %}
+                        - {{ camp.display_end_time }}
+                        {% endif %}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>Doctors:</strong>
+                        {{ camp.doctor_count }}
+                    </p>
+
+                    <p class="mb-3">
+                        <strong>Available Slots:</strong>
+                        {{ camp.capacity - camp.registered_count }}
+                        / {{ camp.capacity }}
+                    </p>
+
+                    {% if camp.registered_count < camp.capacity %} <form method="POST" action="{{ url_for('patient_camps.register_for_camp',
+                         camp_id=camp.camp_id) }}">
+
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <!-- Medical Concern -->
+                        <div class="mb-3">
+                            <label class="form-label">Select Medical Concern</label>
+
+                            <select name="medical_concern" class="form-select medical-concern-select" required>
+
+                                <option value="">Choose your concern</option>
+
+                                <option value="General health" data-specialization="General Physician">General Health
+                                </option>
+                                <option value="Heart problems" data-specialization="Cardiologist">Heart Problems
+                                </option>
+                                <option value="Skin problems" data-specialization="Dermatologist">Skin Problems</option>
+                                <option value="Eye problems" data-specialization="Ophthalmologist">Eye Problems</option>
+                                <option value="Child health" data-specialization="Paediatrician">Child Health</option>
+                                <option value="Women's health" data-specialization="Gynaecologist">Women's Health
+                                </option>
+                                <option value="Dental problems" data-specialization="Dentist">Dental Problems</option>
+                                <option value="Other concerns" data-specialization="Other">Other Concerns</option>
+
+                            </select>
+                        </div>
+
+                        <!-- Doctor Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Select Doctor</label>
+
+                            <select name="doctor_id" class="form-select doctor-select" required>
+
+                                <option value="">Choose a doctor</option>
+
+                                {% for doctor in doctors_by_camp[camp.camp_id] %}
+                                <option value="{{ doctor.doctor_id }}"
+                                    data-specialization="{{ doctor.specialization }}">
+                                    Dr. {{ doctor.full_name }}
+                                    ({{ doctor.specialization }})
+                                </option>
+                                {% endfor %}
+
+                            </select>
+
+                            <small class="text-danger doctor-match-message d-none">
+                                No doctors available for this medical concern in this camp.
+                            </small>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Register for Camp
+                        </button>
+
+                        </form>
+
+                        {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="col-12">
+            <div class="alert alert-info">
+                No upcoming health camps are currently available.
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const forms = document.querySelectorAll("form");
+
+        forms.forEach(function (form) {
+
+            const concernSelect =
+                form.querySelector(".medical-concern-select");
+
+            const doctorSelect =
+                form.querySelector(".doctor-select");
+
+            const message =
+                form.querySelector(".doctor-match-message");
+
+            if (!concernSelect || !doctorSelect) {
+                return;
+            }
+
+            concernSelect.addEventListener("change", function () {
+
+                const selectedConcern =
+                    concernSelect.options[concernSelect.selectedIndex]
+                        .dataset.specialization;
+
+                doctorSelect.value = "";
+
+                let matchingDoctors = 0;
+
+                Array.from(doctorSelect.options).forEach(function (option, index) {
+
+                    if (index === 0) {
+                        option.hidden = false;
+                        return;
+                    }
+
+                    const doctorSpecialization =
+                        (option.dataset.specialization || "")
+                            .trim()
+                            .toLowerCase();
+
+                    const requiredSpecialization =
+                        (selectedConcern || "")
+                            .trim()
+                            .toLowerCase();
+
+                    const matches =
+                        doctorSpecialization === requiredSpecialization;
+
+                    option.hidden = !matches;
+
+                    if (matches) {
+                        matchingDoctors++;
+                    }
+
+                });
+
+                message.classList.toggle(
+                    "d-none",
+                    matchingDoctors > 0
+                );
+
+            });
+
+        });
+
+    });
+
+</script>
+
+{% endblock %}

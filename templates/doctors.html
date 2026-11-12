@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Doctor Management</h2>
+            <p class="text-muted">Manage doctors in the health camp system.</p>
+        </div>
+
+        <a href="{{ url_for('doctors.create_doctor') }}" class="btn btn-primary">
+            + Add Doctor
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            {% if doctors %}
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Specialization</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor.full_name }}</td>
+                            <td>{{ doctor.specialization or "Not specified" }}</td>
+                            <td>{{ doctor.email }}</td>
+                            <td>{{ doctor.phone or "Not specified" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+            <p class="text-muted mb-0">No doctors have been added yet.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
