@@ -35,19 +35,19 @@ The system provides separate interfaces for administrators, doctors, and patient
 ## Application Screenshots
 
 ### Admin Dashboard
-![Admin_Dashboard](screenshots/admin_dashboard.png)
+![Admin_Dashboard](screenshots/admin_dashboard.png.png)
 
 ### Camp Management
-![Camp_Management](screenshots/camp_management.png)
+![Camp_Management](screenshots/camp_management.png.png)
 
 ### Doctor Dashboard
-![Doctor_Dashboard](screenshots/doctor_dashboard.png)
+![Doctor_Dashboard](screenshots/doctor_dashboard.png.png)
 
 ### Patient Dashboard
-![Patient_Dashboard](screenshots/patient_dashboard.png)
+![Patient_Dashboard](screenshots/patient_dashboard.png.png)
 
 ### Health Report
-![Health_Report](screenshots/health_report.png)
+![Health_Report](screenshots/health_report.png.png)
 
 ## Technology Stack
 
