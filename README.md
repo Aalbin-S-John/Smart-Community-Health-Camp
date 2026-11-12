@@ -32,6 +32,23 @@ The system provides separate interfaces for administrators, doctors, and patient
 - Cancel registrations and register again.
 - Access health reports.
 
+## Application Screenshots
+
+### Admin Dashboard
+![Admin_Dashboard](screenshots/admin_dashboard.png)
+
+### Camp Management
+![Camp_Management](screenshots/camp_management.png)
+
+### Doctor Dashboard
+![Doctor_Dashboard](screenshots/doctor_dashboard.png)
+
+### Patient Dashboard
+![Patient_Dashboard](screenshots/patient_dashboard.png)
+
+### Health Report
+![Health_Report](screenshots/health_report.png)
+
 ## Technology Stack
 
 | Component | Technology |
